@@ -8,7 +8,7 @@
 
 import XCTest
 @testable import PGPFormat
-import CommonCrypto
+import Crypto
 
 class PGPFormatTests: XCTestCase {
     
@@ -26,7 +26,8 @@ class PGPFormatTests: XCTestCase {
     override func setUp() {
         super.setUp()
         
-        let bundle = Bundle(for: type(of: self))
+        let bundle = Bundle.module
+
         pubkey1 = try! String(contentsOfFile: bundle.path(forResource: "pubkey1", ofType: "txt")!)
         pubkey2 = try! String(contentsOfFile: bundle.path(forResource: "pubkey2", ofType: "txt")!)
         pubkeyEd25519 = try! String(contentsOfFile: bundle.path(forResource: "pubkey3", ofType: "txt")!)
@@ -36,7 +37,6 @@ class PGPFormatTests: XCTestCase {
         binaryDocument = try! String(contentsOfFile: bundle.path(forResource: "signed_raw", ofType: "txt")!)
 
         attachedSignature = try! String(contentsOfFile: bundle.path(forResource: "attached_signature", ofType: "txt")!)
-
     }
     
     override func tearDown() {
@@ -372,8 +372,6 @@ class PGPFormatTests: XCTestCase {
             switch signature.hashAlgorithm {
             case .sha1:
                 hash = dataToHash.SHA1
-            case .sha224:
-                hash = dataToHash.SHA224
             case .sha256:
                 hash = dataToHash.SHA256
             case .sha384:
@@ -415,8 +413,6 @@ class PGPFormatTests: XCTestCase {
             switch signature.hashAlgorithm {
             case .sha1:
                 hash = dataToHash.SHA1
-            case .sha224:
-                hash = dataToHash.SHA224
             case .sha256:
                 hash = dataToHash.SHA256
             case .sha384:
@@ -463,8 +459,6 @@ class PGPFormatTests: XCTestCase {
             switch signature.hashAlgorithm {
             case .sha1:
                 hash = dataToHash.SHA1
-            case .sha224:
-                hash = dataToHash.SHA224
             case .sha256:
                 hash = dataToHash.SHA256
             case .sha384:
@@ -504,8 +498,6 @@ class PGPFormatTests: XCTestCase {
             switch signature.hashAlgorithm {
             case .sha1:
                 hash = dataToHash.SHA1
-            case .sha224:
-                hash = dataToHash.SHA224
             case .sha256:
                 hash = dataToHash.SHA256
             case .sha384:
@@ -548,8 +540,6 @@ class PGPFormatTests: XCTestCase {
             switch signature.hashAlgorithm {
             case .sha1:
                 hash = dataToHash.SHA1
-            case .sha224:
-                hash = dataToHash.SHA224
             case .sha256:
                 hash = dataToHash.SHA256
             case .sha384:
@@ -731,10 +721,13 @@ class PGPFormatTests: XCTestCase {
 }
 
 extension Data {
-    
     static func random(size:Int) -> Data {
         var result = [UInt8](repeating: 0, count: size)
-        let _ = SecRandomCopyBytes(kSecRandomDefault, size, &result)
+
+        for i in 0...(size - 1) {
+            result[i] = UInt8.random(in: 0...UInt8.max)
+        }
+
         return Data(result)
     }
 }

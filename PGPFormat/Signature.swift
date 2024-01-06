@@ -50,7 +50,6 @@ public struct Signature:Packetable {
         case sha256 = 8
         case sha384 = 9
         case sha512 = 10
-        case sha224 = 11
         
         init(type:UInt8) throws {
             guard let algo = HashAlgorithm(rawValue: type) else {

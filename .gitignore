@@ -2,3 +2,5 @@
 *.xcodeproj/project.xcworkspace/xcshareddata/
 *.xcodeproj/project.xcworkspace/contents.xcworkspacedata
 xcodebuild.log
+Package.resolved
+.build

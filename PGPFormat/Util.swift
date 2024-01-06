@@ -8,8 +8,7 @@
 
 
 import Foundation
-import Security
-import CommonCrypto
+import Crypto
 
 public enum DataError : Error {
     case encoding
@@ -84,42 +83,27 @@ extension Int {
 }
 
 extension Data {
-    var SHA512:Data {
-        var dataBytes = self.bytes
-        var hash = [UInt8](repeating: 0, count: Int(CC_SHA512_DIGEST_LENGTH))
-        CC_SHA512(&dataBytes, CC_LONG(self.count), &hash)
-        
-        return Data(hash)
-    }
-    var SHA384:Data {
-        var dataBytes = self.bytes
-        var hash = [UInt8](repeating: 0, count: Int(CC_SHA384_DIGEST_LENGTH))
-        CC_SHA384(&dataBytes, CC_LONG(self.count), &hash)
+    var SHA512: Data {
+        let hash = Crypto.SHA512.hash(data: Data.init(self.bytes))
         
         return Data(hash)
     }
 
-    var SHA256:Data {
-        var dataBytes = self.bytes
-        var hash = [UInt8](repeating: 0, count: Int(CC_SHA256_DIGEST_LENGTH))
-        CC_SHA256(&dataBytes, CC_LONG(self.count), &hash)
+    var SHA384: Data {
+        let hash = Crypto.SHA384.hash(data: Data.init(self.bytes))
+        
+        return Data(hash)
+    }
+
+    var SHA256: Data {
+        let hash = Crypto.SHA256.hash(data: Data.init(self.bytes))
         
         return Data(hash)
     }
     
-    var SHA224:Data {
-        var dataBytes = self.bytes
-        var hash = [UInt8](repeating: 0, count: Int(CC_SHA224_DIGEST_LENGTH))
-        CC_SHA224(&dataBytes, CC_LONG(self.count), &hash)
-        
-        return Data(hash)
-    }
+    var SHA1: Data {
+        let hash = Crypto.Insecure.SHA1.hash(data: Data.init(self.bytes));
 
-    var SHA1:Data {
-        var dataBytes = self.bytes
-        var hash = [UInt8](repeating: 0, count: Int(CC_SHA1_DIGEST_LENGTH))
-        CC_SHA1(&dataBytes, CC_LONG(self.count), &hash)
-        
         return Data(hash)
     }
 }
@@ -160,16 +144,10 @@ extension Data {
     }
     
     var crc24Checksum:Data {
-        var dataBytes = self.bytes
-        let checksum = crc_octets(&dataBytes, dataBytes.count)
+        let checksum = CRC24.generate(fromBytes: self.bytes)
         
-        guard checksum <= 0xFFFFFF else {
-            return Data()
-        }
-        
-        return Data(UInt32(checksum).threeByteBigEndianBytes())
+        return Data(checksum.threeByteBigEndianBytes())
     }
-    
     
     /**
         Create a new byte array with prepended zeros
